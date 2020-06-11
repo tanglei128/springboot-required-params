@@ -1,6 +1,9 @@
 package com.tanglei.springbootstudydemo.controller;
 
 import com.tanglei.springbootstudydemo.global.myannotation.Check;
+import com.tanglei.springbootstudydemo.result.ResponseResult;
+import com.tanglei.springbootstudydemo.service.HelloService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,6 +15,9 @@ import java.util.Map;
 @RequestMapping("/v1")
 public class HelloController {
 
+    @Autowired
+    public HelloService helloService;
+
     @RequestMapping("/user")
     @Check(params = {"userName", "pwd"})
     @ResponseBody
@@ -22,4 +28,13 @@ public class HelloController {
         return  map;
 
     }
+
+    @RequestMapping("/users")
+    @Check(params = {"size"})
+    @ResponseBody
+    public ResponseResult getUsers(){
+        return  helloService.getUsers();
+    }
+
+
 }
