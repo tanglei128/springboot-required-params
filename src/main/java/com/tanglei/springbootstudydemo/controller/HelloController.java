@@ -4,8 +4,10 @@ import com.tanglei.springbootstudydemo.global.myannotation.Check;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
 import com.tanglei.springbootstudydemo.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Constants;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
@@ -29,7 +31,7 @@ public class HelloController {
 
     }
 
-    @RequestMapping("/users")
+    @RequestMapping(value="/users",method = RequestMethod.POST,produces ="application/json; charset=utf-8")
     @Check(params = {"size"})
     @ResponseBody
     public ResponseResult getUsers(){
