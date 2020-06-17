@@ -43,5 +43,13 @@ public class HelloController {
         return  helloService.getUsers();
     }
 
+    @RequestMapping(value="/user/id",method = RequestMethod.POST,produces ="application/json; charset=utf-8")
+    @Check(params = {"id"})
+    @ResponseBody
+    public ResponseResult getUserInfo(@RequestParam("id") String id){
+        logger.info("id:"+id);
+        return  helloService.getUserById(id);
+    }
+
 
 }
