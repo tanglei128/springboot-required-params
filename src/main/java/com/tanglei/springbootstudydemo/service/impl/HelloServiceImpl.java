@@ -1,6 +1,7 @@
 package com.tanglei.springbootstudydemo.service.impl;
 
 import com.tanglei.springbootstudydemo.entity.User;
+import com.tanglei.springbootstudydemo.exception.ServiceException;
 import com.tanglei.springbootstudydemo.mapper.UserMapper;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
 import com.tanglei.springbootstudydemo.result.ResultCode;
@@ -39,5 +40,18 @@ public class HelloServiceImpl implements HelloService {
         User user = userMapper.getUserById(id);
         ResponseResult result = new ResponseResult();
         return result.setCode(ResultCode.SUCCESS).setMessage(ResultCode.SUCCESS.desc).setData(user);
+    }
+
+    @Override
+    public ResponseResult addUser(User user) {
+        ResponseResult result = new ResponseResult();
+        int count = userMapper.add(user);
+        if (count>0){
+            result.setCode(ResultCode.SUCCESS).setMessage(ResultCode.SUCCESS.desc).setData(count);
+        }else {
+            result.setCode(ResultCode.FAIL).setMessage(ResultCode.FAIL.desc).setData(count);
+        }
+
+        return result;
     }
 }

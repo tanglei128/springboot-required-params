@@ -6,4 +6,5 @@ import com.tanglei.springbootstudydemo.result.ResponseResult;
 public interface HelloService {
     ResponseResult getUsers();
     ResponseResult getUserById(String id);
+    ResponseResult addUser(User user);
 }
