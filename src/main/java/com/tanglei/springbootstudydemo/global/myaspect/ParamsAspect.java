@@ -71,45 +71,28 @@ public class ParamsAspect {
     }
 
     public  static  void validateFields(Object[] objs,String [] requiredFields){
-            Map map = new HashMap();
+            Map<String,Object> map = new HashMap();
                 for (Object object:objs){
                     if (object.getClass().isPrimitive()){
                         logger.info("object: {}", object);
                     }else {
-                        Map mapin = JSONObject.parseObject(JSONObject.toJSONString(object), Map.class);
-                        logger.info("objectzzz: {}", object);
-                        logger.info("mapin: {}", mapin);
-                        for (Object key:mapin.keySet()){
-//                            String k = (String)key;
-                            Object value = mapin.get(key);
-                            logger.info("key: {},value:{}", key,value);
-                            logger.info("key: {},value:{}", key.getClass().getName(),value.getClass().getName());
-                            if(value.getClass().getName().equals("java.lang.String")){
-                                map.put(key,value);
-                            }else {
-                                Map mapin2 = JSONObject.parseObject(JSONObject.toJSONString(value), Map.class);
-                                for (Object o:mapin2.keySet()){
-                                    map.put(key.toString()+"."+o.toString(),mapin2.get(o));
-                                }
-                                //map.put(key+"",value);
-                            }
-                           // map.put(key,value);
-                        }
-                        //map.put()
+                        map = getMap("",map,object);
                     }
-                    //logger.info("各个参数ss, object: {}, field: {}", object, field);
                 }
         logger.info("final map: {}",map);
-//        if (requiredFields.length>0){
-//            for (String field :requiredFields){
-//                for (Object object:objs){
-//                    logger.info("各个参数ss, object: {}, field: {}", object, field);
-//                }
-////                if (StringUtils.isEmpty(paramsMap.get(field))){
-////                    throw new ServiceException("必传参数:"+field+",不能为空");
-////                }
-//            }
-//        }
+    }
+    public static Map getMap (String baseKey,Map<String,Object> currentMap,Object object){
+        Map<String,Object> map= JSONObject.parseObject(JSONObject.toJSONString(object), Map.class);
+        for (String key:map.keySet()){
+            Object value =map.get(key);
+            if (value.getClass().getName().equals("java.lang.String")){
+                String totalKey = baseKey==""?key:baseKey+"."+key;
+                currentMap.put(totalKey,value);
+            }else {
+                currentMap =getMap(key,currentMap,value);
+            }
+        }
+        return currentMap;
     }
 
     public  static  void validateParams(Map<String,String> paramsMap,String [] requiredFields){
@@ -142,44 +125,4 @@ public class ParamsAspect {
         }
         return res;
     }
-
-    private static Map getFieldsName(ProceedingJoinPoint joinPoint) throws ClassNotFoundException, NoSuchMethodException {
-        String classType = joinPoint.getTarget().getClass().getName();
-        String methodName = joinPoint.getSignature().getName();
-        // 参数值
-        Object[] args = joinPoint.getArgs();
-        Class<?>[] classes = new Class[args.length];
-        for (int k = 0; k < args.length; k++) {
-            if (!args[k].getClass().isPrimitive()) {
-                // 获取的是封装类型而不是基础类型
-                String result = args[k].getClass().getName();
-                Class s = map.get(result);
-                classes[k] = s == null ? args[k].getClass() : s;
-            }
-        }
-        ParameterNameDiscoverer pnd = new DefaultParameterNameDiscoverer();
-        // 获取指定的方法，第二个参数可以不传，但是为了防止有重载的现象，还是需要传入参数的类型
-        Method method = Class.forName(classType).getMethod(methodName, classes);
-        // 参数名
-        String[] parameterNames = pnd.getParameterNames(method);
-        // 通过map封装参数和参数值
-        HashMap<String, Object> paramMap = new HashMap();
-        for (int i = 0; i < parameterNames.length; i++) {
-            paramMap.put(parameterNames[i], args[i]);
-        }
-        return paramMap;
-    }
-
-    private static HashMap<String, Class> map = new HashMap<String, Class>() {
-        {
-            put("java.lang.Integer", int.class);
-            put("java.lang.Double", double.class);
-            put("java.lang.Float", float.class);
-            put("java.lang.Long", long.class);
-            put("java.lang.Short", short.class);
-            put("java.lang.Boolean", boolean.class);
-            put("java.lang.Char", char.class);
-        }
-    };
-
 }
