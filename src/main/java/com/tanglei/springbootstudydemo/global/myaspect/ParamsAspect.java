@@ -44,11 +44,39 @@ public class ParamsAspect {
         String uri = request.getRequestURI();
         String queryString = request.getQueryString();
 
+        String classType = joinPoint.getTarget().getClass().getName();
+        String methodName = joinPoint.getSignature().getName();
+
+
+
+        Object[] objects = joinPoint.getArgs();
+        Object[] args = joinPoint.getArgs();
+        Class<?>[] classes = new Class[args.length];
+        for (int k = 0; k < args.length; k++) {
+            if (!args[k].getClass().isPrimitive()) {
+                // 获取的是封装类型而不是基础类型
+                String result = args[k].getClass().getName();
+                Class s = map.get(result);
+                classes[k] = s == null ? args[k].getClass() : s;
+            }
+        }
+        ParameterNameDiscoverer pnd = new DefaultParameterNameDiscoverer();
+        // 获取指定的方法，第二个参数可以不传，但是为了防止有重载的现象，还是需要传入参数的类型
+        Method methods = Class.forName(classType).getMethod(methodName, classes);
+        // 参数名
+        String[] parameterNames = pnd.getParameterNames(methods);
+        // 通过map封装参数和参数值
+        //HashMap<String, Object> paramMap = new HashMap();
+        for (int i = 0; i < parameterNames.length; i++) {
+            //paramMap.put(parameterNames[i], objects[i]);
+            logger.info("各个参数名称, parameterNames[i]: {}, objects[i]: {}", parameterNames[i],  objects[i]);
+        }
+
 
         if ("POST".equals(method.toUpperCase())){
             logger.info("POST请求开始, 各个参数, url: {}, method: {}, uri: {}, params: {}", url, method, uri, queryString);
             //重点 这里就是获取@RequestBody参数的关键  调试的情况下 可以看到objects变量已经获取到了请求的参数
-            Object[] objects = joinPoint.getArgs();
+
             logger.info("objects: {},objectsTypeName: {},",objects,objects.getClass().getName());
             Map<String, Object> allPostParams = getAllPostParams(objects, request);
             validateFields(allPostParams,requiredFields);
@@ -142,4 +170,15 @@ public class ParamsAspect {
         }
         return res;
     }
+    private static HashMap<String, Class> map = new HashMap<String, Class>() {
+        {
+            put("java.lang.Integer", int.class);
+            put("java.lang.Double", double.class);
+            put("java.lang.Float", float.class);
+            put("java.lang.Long", long.class);
+            put("java.lang.Short", short.class);
+            put("java.lang.Boolean", boolean.class);
+            put("java.lang.Char", char.class);
+        }
+    };
 }
