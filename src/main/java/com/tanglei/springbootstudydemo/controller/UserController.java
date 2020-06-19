@@ -11,6 +11,7 @@ import com.tanglei.springbootstudydemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -36,8 +37,11 @@ public class UserController {
         return userService.getUserByMap(map);
     }
     @RequestMapping("/student")
-    @Check(params = {"course.student.user.name","course.cName"})
-    public ResponseResult getUserByStudent(@RequestBody Course course) {
+    @Check(params = {
+        "course.student.user.name",
+        "course.cName"
+    })
+    public ResponseResult getUserByStudent(@RequestBody Course course, @RequestParam("token") String token) {
         Student student = course.getStudent();
         User user = student.getUser();
         Map map = JSONObject.parseObject(JSONObject.toJSONString(user), Map.class);
