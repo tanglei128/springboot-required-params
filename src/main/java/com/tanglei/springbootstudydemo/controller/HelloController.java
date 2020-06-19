@@ -1,5 +1,6 @@
 package com.tanglei.springbootstudydemo.controller;
 
+import com.tanglei.springbootstudydemo.entity.User;
 import com.tanglei.springbootstudydemo.global.myannotation.Check;
 import com.tanglei.springbootstudydemo.global.myaspect.ParamsAspect;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
@@ -9,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Constants;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,10 +34,9 @@ public class HelloController {
     }
 
     @RequestMapping(value="/users",method = RequestMethod.POST,produces ="application/json; charset=utf-8")
-    @Check(params = {"size"})
+    @Check(params = {"name"})
     @ResponseBody
-    public ResponseResult getUsers(@RequestParam(value="name", required = false) String name){
-        logger.info("name:"+name);
+    public ResponseResult getUsers(@RequestParam(value="name", required = false) String name, @RequestBody User user){
         return  helloService.getUsers();
     }
 
