@@ -85,11 +85,11 @@ public class ParamsAspect {
         Map<String,Object> map= JSONObject.parseObject(JSONObject.toJSONString(object), Map.class);
         for (String key:map.keySet()){
             Object value =map.get(key);
+            String totalKey = baseKey==""?key:baseKey+"."+key;
             if (value.getClass().getName().equals("java.lang.String")){
-                String totalKey = baseKey==""?key:baseKey+"."+key;
                 currentMap.put(totalKey,value);
             }else {
-                currentMap =getMap(key,currentMap,value);
+                currentMap =getMap(totalKey,currentMap,value);
             }
         }
         return currentMap;

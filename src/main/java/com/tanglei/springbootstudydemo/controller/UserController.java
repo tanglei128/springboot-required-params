@@ -1,6 +1,7 @@
 package com.tanglei.springbootstudydemo.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.tanglei.springbootstudydemo.entity.Course;
 import com.tanglei.springbootstudydemo.entity.Student;
 import com.tanglei.springbootstudydemo.entity.User;
 import com.tanglei.springbootstudydemo.global.myannotation.Check;
@@ -36,7 +37,8 @@ public class UserController {
     }
     @RequestMapping("/student")
     @Check(params = {"sizess"})
-    public ResponseResult getUserByStudent(@RequestBody Student student) {
+    public ResponseResult getUserByStudent(@RequestBody Course course) {
+        Student student = course.getStudent();
         User user = student.getUser();
         Map map = JSONObject.parseObject(JSONObject.toJSONString(user), Map.class);
         return userService.getUserByMap(map);
