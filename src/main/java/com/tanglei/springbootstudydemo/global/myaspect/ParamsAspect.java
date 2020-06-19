@@ -44,33 +44,15 @@ public class ParamsAspect {
         String uri = request.getRequestURI();
         String queryString = request.getQueryString();
 
-        String classType = joinPoint.getTarget().getClass().getName();
-        String methodName = joinPoint.getSignature().getName();
-
-
-
         Object[] objects = joinPoint.getArgs();
-        Object[] args = joinPoint.getArgs();
-        Class<?>[] classes = new Class[args.length];
-        for (int k = 0; k < args.length; k++) {
-            if (!args[k].getClass().isPrimitive()) {
-                // 获取的是封装类型而不是基础类型
-                String result = args[k].getClass().getName();
-                Class s = map.get(result);
-                classes[k] = s == null ? args[k].getClass() : s;
-            }
-        }
-        ParameterNameDiscoverer pnd = new DefaultParameterNameDiscoverer();
-        // 获取指定的方法，第二个参数可以不传，但是为了防止有重载的现象，还是需要传入参数的类型
-        Method methods = Class.forName(classType).getMethod(methodName, classes);
         // 参数名
-        String[] parameterNames = pnd.getParameterNames(methods);
-        // 通过map封装参数和参数值
-        //HashMap<String, Object> paramMap = new HashMap();
+        String[] parameterNames = getParameterNames(joinPoint);
+
         for (int i = 0; i < parameterNames.length; i++) {
             //paramMap.put(parameterNames[i], objects[i]);
             logger.info("各个参数名称, parameterNames[i]: {}, objects[i]: {}", parameterNames[i],  objects[i]);
         }
+
 
 
         if ("POST".equals(method.toUpperCase())){
@@ -90,6 +72,29 @@ public class ParamsAspect {
         Object result = joinPoint.proceed();
         return result;
     }
+
+//    获取参数列表里参数名
+    public  static  String[] getParameterNames(ProceedingJoinPoint joinPoint ) throws Exception{
+        String classType = joinPoint.getTarget().getClass().getName();
+        String methodName = joinPoint.getSignature().getName();
+        Object[] args = joinPoint.getArgs();
+        Class<?>[] classes = new Class[args.length];
+        for (int k = 0; k < args.length; k++) {
+            if (!args[k].getClass().isPrimitive()) {
+                // 获取的是封装类型而不是基础类型
+                String result = args[k].getClass().getName();
+                Class s = map.get(result);
+                classes[k] = s == null ? args[k].getClass() : s;
+            }
+        }
+        ParameterNameDiscoverer pnd = new DefaultParameterNameDiscoverer();
+        // 获取指定的方法，第二个参数可以不传，但是为了防止有重载的现象，还是需要传入参数的类型
+        Method methods = Class.forName(classType).getMethod(methodName, classes);
+        // 参数名
+        String[] parameterNames = pnd.getParameterNames(methods);
+        return parameterNames;
+    }
+
 
     public  static  void validateFields( Map<String,Object> map,String [] requiredFields){
 
