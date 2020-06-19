@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.slf4j.Logger;
@@ -31,18 +32,34 @@ public class ParamsAspect {
 
     @Around("paramsCheck()")
     public Object around (ProceedingJoinPoint joinPoint) throws Throwable{
-        ServletRequestAttributes sAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = sAttributes.getRequest();
-        String target = joinPoint.getSignature().getDeclaringTypeName();              // 全路径类名
-        String classNm = target.substring(target.lastIndexOf(".") + 1, target.length()); // 类名截取
-        String method = joinPoint.getSignature().getName();                          // 获取方法名
-        Map<String, String> paramsMap = getAllRequestParam(request);
-        logger.info("{}.{} 接收参数: {}", classNm, method, JSON.toJSONString(paramsMap));
-        Check check = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(Check.class);
-        String[] requiredFields = check.params();
-        logger.info("必传参数：{}",JSON.toJSONString(requiredFields));
-        validateParams(paramsMap, requiredFields);
-        return joinPoint.proceed();
+        RequestAttributes ra = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes sra = (ServletRequestAttributes) ra;
+        HttpServletRequest request = sra.getRequest();
+
+        String url = request.getRequestURL().toString();
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
+        String queryString = request.getQueryString();
+        //这里可以获取到get请求的参数和其他信息
+        logger.info("请求开始, 各个参数, url: {}, method: {}, uri: {}, params: {}", url, method, uri, queryString);
+        //重点 这里就是获取@RequestBody参数的关键  调试的情况下 可以看到o变量已经获取到了请求的参数
+        Object[] objs = joinPoint.getArgs();
+        logger.info("objs: {}",objs);
+        // result的值就是被拦截方法的返回值
+        Object result = joinPoint.proceed();
+        return result;
+//        ServletRequestAttributes sAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+//        HttpServletRequest request = sAttributes.getRequest();
+//        String target = joinPoint.getSignature().getDeclaringTypeName();              // 全路径类名
+//        String classNm = target.substring(target.lastIndexOf(".") + 1, target.length()); // 类名截取
+//        String method = joinPoint.getSignature().getName();                          // 获取方法名
+//        Map<String, String> paramsMap = getAllRequestParam(request);
+//        logger.info("{}.{} 接收参数: {}", classNm, method, JSON.toJSONString(paramsMap));
+//        Check check = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(Check.class);
+//        String[] requiredFields = check.params();
+//        logger.info("必传参数：{}",JSON.toJSONString(requiredFields));
+//        validateParams(paramsMap, requiredFields);
+//        return joinPoint.proceed();
     }
 
     public  static  void validateParams(Map<String,String> paramsMap,String [] requiredFields){

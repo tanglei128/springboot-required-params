@@ -2,6 +2,7 @@ package com.tanglei.springbootstudydemo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.tanglei.springbootstudydemo.entity.User;
+import com.tanglei.springbootstudydemo.global.myannotation.Check;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
 import com.tanglei.springbootstudydemo.result.ResultCode;
 import com.tanglei.springbootstudydemo.service.UserService;
@@ -27,6 +28,7 @@ public class UserController {
         return result.setCode(ResultCode.SUCCESS).setMessage("成功").setData(list);
     }
     @RequestMapping("/map")
+    @Check(params = {"size"})
     public ResponseResult getUserByMap(@RequestBody User user) {
         Map map = JSONObject.parseObject(JSONObject.toJSONString(user), Map.class);
         return userService.getUserByMap(map);
