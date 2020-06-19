@@ -72,13 +72,21 @@ public class ParamsAspect {
 
     public  static  void validateFields(Object[] objs,String [] requiredFields){
             Map<String,Object> map = new HashMap();
-                for (Object object:objs){
-                    if (object.getClass().isPrimitive()){
-                        logger.info("object: {}", object);
-                    }else {
-                        map = getMap("",map,object);
-                    }
+            for (Object object:objs){
+                if (object.getClass().isPrimitive()){
+                    logger.info("object: {}", object);
+                }else {
+                    map = getMap("",map,object);
                 }
+            }
+        if (requiredFields.length>0){
+            for (String field :requiredFields){
+                if (StringUtils.isEmpty((String) map.get(field))){
+                    throw new ServiceException("必传参数:"+field+",不能为空");
+                }
+            }
+        }
+
         logger.info("final map: {}",map);
     }
     public static Map getMap (String baseKey,Map<String,Object> currentMap,Object object){

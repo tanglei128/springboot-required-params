@@ -36,7 +36,7 @@ public class UserController {
         return userService.getUserByMap(map);
     }
     @RequestMapping("/student")
-    @Check(params = {"sizess"})
+    @Check(params = {"student.user.name","cName"})
     public ResponseResult getUserByStudent(@RequestBody Course course) {
         Student student = course.getStudent();
         User user = student.getUser();
