@@ -50,10 +50,8 @@ public class ParamsAspect {
             //重点 这里就是获取@RequestBody参数的关键  调试的情况下 可以看到objects变量已经获取到了请求的参数
             Object[] objects = joinPoint.getArgs();
             logger.info("objects: {},objectsTypeName: {},",objects,objects.getClass().getName());
-            logger.info("flag: {},flag2: {}", null==objects,objects.length);
-            //if(objects!=null && objects.length>0&&objects.length>1){
-                validateFields(objects,requiredFields);
-            //}
+            Map<String, Object> allPostParams = getAllPostParams(objects, request);
+            validateFields(allPostParams,requiredFields);
         }else if ("GET".equals(method.toUpperCase())){
             //这里可以获取到get请求的参数和其他信息
             logger.info("GET请求开始, 各个参数, url: {}, method: {}, uri: {}, params: {}", url, method, uri, queryString);
@@ -65,9 +63,23 @@ public class ParamsAspect {
         return result;
     }
 
+    public  static  void validateFields( Map<String,Object> map,String [] requiredFields){
+
+        if (requiredFields.length>0){
+            for (String field :requiredFields){
+                if (StringUtils.isEmpty((String) map.get(field))){
+                    throw new ServiceException("必传参数:"+field+",不能为空");
+                }
+            }
+        }
+        logger.info("final map: {}",map);
+    }
+
+
+
 //    如果是post请求，既要考虑body中的传参，还要考虑地址栏的传参，待完善
 
-    public  static  void validateFields(Object[] objects,String [] requiredFields){
+    public  static  Map<String, Object> getAllPostParams(Object[] objects,HttpServletRequest request){
         Map<String,Object> map = new HashMap();
         for (Object object:objects){
             logger.info("object---->: {},objType:{}", object,object.getClass().getName());
@@ -77,14 +89,12 @@ public class ParamsAspect {
                 map = getMap("",map,object);
             }
         }
-        if (requiredFields.length>0){
-            for (String field :requiredFields){
-                if (StringUtils.isEmpty((String) map.get(field))){
-                    throw new ServiceException("必传参数:"+field+",不能为空");
-                }
-            }
-        }
-        logger.info("final map: {}",map);
+        Map<String, String> paramsMap = getAllRequestParam(request);
+        //paramsMap 和map合并
+
+        logger.info("final map: {},paramsMap: {}",map,paramsMap);
+        return map;
+
     }
     public static Map getMap (String baseKey,Map<String,Object> currentMap,Object object){
         Map<String,Object> map= JSONObject.parseObject(JSONObject.toJSONString(object), Map.class);
