@@ -47,11 +47,11 @@ public class ParamsAspect {
         Object[] objects = joinPoint.getArgs();
         // 参数名
         String[] parameterNames = getParameterNames(joinPoint);
-
-        for (int i = 0; i < parameterNames.length; i++) {
-            //paramMap.put(parameterNames[i], objects[i]);
-            logger.info("各个参数名称, parameterNames[i]: {}, objects[i]: {}", parameterNames[i],  objects[i]);
-        }
+//
+//        for (int i = 0; i < parameterNames.length; i++) {
+//            //paramMap.put(parameterNames[i], objects[i]);
+//            logger.info("各个参数名称, parameterNames[i]: {}, objects[i]: {}", parameterNames[i],  objects[i]);
+//        }
 
 
 
@@ -60,7 +60,7 @@ public class ParamsAspect {
             //重点 这里就是获取@RequestBody参数的关键  调试的情况下 可以看到objects变量已经获取到了请求的参数
 
             logger.info("objects: {},objectsTypeName: {},",objects,objects.getClass().getName());
-            Map<String, Object> allPostParams = getAllPostParams(objects, request);
+            Map<String, Object> allPostParams = getAllPostParams(objects,parameterNames);
             validateFields(allPostParams,requiredFields);
         }else if ("GET".equals(method.toUpperCase())){
             //这里可以获取到get请求的参数和其他信息
@@ -112,20 +112,17 @@ public class ParamsAspect {
 
 //    如果是post请求，既要考虑body中的传参，还要考虑地址栏的传参，待完善
 
-    public  static  Map<String, Object> getAllPostParams(Object[] objects,HttpServletRequest request){
+    public  static  Map<String, Object> getAllPostParams(Object[] objects,String[] parameterNames){
         Map<String,Object> map = new HashMap();
-        for (Object object:objects){
-            logger.info("object---->: {},objType:{}", object,object.getClass().getName());
-            if (object.getClass().getName().equals("java.lang.String")){
-                logger.info("object: {}", object);
+        for (int i = 0;i<objects.length;i++){
+            logger.info("object-->: {},objType:{}", objects[i],objects[i].getClass().getName());
+            if (objects[i].getClass().getName().equals("java.lang.String")){
+                logger.info("object: {}", objects[i]);
+                map.put(parameterNames[i],objects[i]);
             }else {
-                map = getMap("",map,object);
+                map = getMap(parameterNames[i],map,objects[i]);
             }
         }
-        Map<String, String> paramsMap = getAllRequestParam(request);
-        //paramsMap 和map合并
-
-        logger.info("final map: {},paramsMap: {}",map,paramsMap);
         return map;
 
     }
