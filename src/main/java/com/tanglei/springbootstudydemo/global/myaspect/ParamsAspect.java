@@ -44,6 +44,7 @@ public class ParamsAspect {
         String uri = request.getRequestURI();
         String queryString = request.getQueryString();
 
+
         if ("POST".equals(method.toUpperCase())){
             logger.info("POST请求开始, 各个参数, url: {}, method: {}, uri: {}, params: {}", url, method, uri, queryString);
             //重点 这里就是获取@RequestBody参数的关键  调试的情况下 可以看到objects变量已经获取到了请求的参数
@@ -63,6 +64,8 @@ public class ParamsAspect {
         Object result = joinPoint.proceed();
         return result;
     }
+
+//    如果是post请求，既要考虑body中的传参，还要考虑地址栏的传参，待完善
 
     public  static  void validateFields(Object[] objects,String [] requiredFields){
         Map<String,Object> map = new HashMap();
@@ -116,8 +119,10 @@ public class ParamsAspect {
         logger.info("GET request：", request );
         if (null != temp) {
             while (temp.hasMoreElements()) {
+
                 String en = (String) temp.nextElement();
                 String value = request.getParameter(en);
+                logger.info("GET en：{}，value: {}", en,value );
                 res.put(en, value);
                 // 在报文上送时，如果字段的值为空，则不上送<下面的处理为在获取所有参数数据时，判断若值为空，则删除这个字段>
                 if (StringUtils.isEmpty(res.get(en))) {
