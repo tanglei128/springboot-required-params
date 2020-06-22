@@ -46,4 +46,10 @@ public class ResponseResult {
         this.data = data;
         return this;
     }
+
+    public ResponseResult setDefault(ResultCode resultCode){
+        this.message = resultCode.desc;
+        this.code = resultCode.code;
+        return this;
+    }
 }

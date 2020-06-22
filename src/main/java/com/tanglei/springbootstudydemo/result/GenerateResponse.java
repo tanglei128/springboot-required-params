@@ -9,6 +9,10 @@ public class GenerateResponse {
         ResponseResult  result = new ResponseResult();
         return result.setCode(code).setMessage(message);
     }
+    public static ResponseResult getGenerateResult(ResultCode code){
+        ResponseResult  result = new ResponseResult();
+        return result.setCode(code).setMessage(code.desc);
+    }
     public static ResponseResult getGenerateSuccess(){
         ResponseResult  result = new ResponseResult();
         return result.setCode(ResultCode.SUCCESS).setMessage(ResultCode.SUCCESS.desc);

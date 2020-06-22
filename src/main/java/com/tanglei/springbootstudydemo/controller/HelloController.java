@@ -3,7 +3,9 @@ package com.tanglei.springbootstudydemo.controller;
 import com.tanglei.springbootstudydemo.entity.User;
 import com.tanglei.springbootstudydemo.global.myannotation.Check;
 import com.tanglei.springbootstudydemo.global.myaspect.ParamsAspect;
+import com.tanglei.springbootstudydemo.result.GenerateResponse;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
+import com.tanglei.springbootstudydemo.result.ResultCode;
 import com.tanglei.springbootstudydemo.service.HelloService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,8 @@ public class HelloController {
         Map map = new HashMap();
         map.put("userName","userName");
         map.put("pwd","111222333");
+       // ResponseResult  result =new ResponseResult();
+        ResponseResult result = new ResponseResult().setDefault(ResultCode.SUCCESS);
         return  map;
 
     }
