@@ -9,10 +9,7 @@ import com.tanglei.springbootstudydemo.result.ResponseResult;
 import com.tanglei.springbootstudydemo.result.ResultCode;
 import com.tanglei.springbootstudydemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -45,6 +42,14 @@ public class UserController {
         Student student = course.getStudent();
         User user = student.getUser();
         Map map = JSONObject.parseObject(JSONObject.toJSONString(user), Map.class);
+        return userService.getUserByMap(map);
+    }
+
+    @RequestMapping(value = "/mapping",method = RequestMethod.GET)
+    public ResponseResult getUserByStudentByMapping(@RequestParam Map<String,Object> map) {
+//        Student student = course.getStudent();
+//        User user = student.getUser();
+//        Map map = JSONObject.parseObject(JSONObject.toJSONString(user), Map.class);
         return userService.getUserByMap(map);
     }
 }
