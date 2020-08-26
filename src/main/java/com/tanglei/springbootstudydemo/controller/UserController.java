@@ -2,6 +2,7 @@ package com.tanglei.springbootstudydemo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.tanglei.springbootstudydemo.entity.User;
+import com.tanglei.springbootstudydemo.global.myannotation.OperationLogPersistence;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
 import com.tanglei.springbootstudydemo.result.ResultCode;
 import com.tanglei.springbootstudydemo.service.UserService;
@@ -21,12 +22,14 @@ public class UserController {
     UserService userService;
 
     @RequestMapping("/getAll")
+    @OperationLogPersistence
     public ResponseResult getAll() {
         ResponseResult result = new ResponseResult();
         List<User> list = userService.list();
         return result.setCode(ResultCode.SUCCESS).setMessage("成功").setData(list);
     }
     @RequestMapping("/map")
+    @OperationLogPersistence
     public ResponseResult getUserByMap(@RequestBody User user) {
         Map map = JSONObject.parseObject(JSONObject.toJSONString(user), Map.class);
         return userService.getUserByMap(map);

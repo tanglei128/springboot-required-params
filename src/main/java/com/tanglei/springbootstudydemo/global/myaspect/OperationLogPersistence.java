@@ -1,5 +1,7 @@
 package com.tanglei.springbootstudydemo.global.myaspect;
 
+import com.alibaba.fastjson.JSON;
+import com.tanglei.springbootstudydemo.entity.OperationLogPersistenceDTE;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,6 +13,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.util.Map;
 
 /**
  * @ClassName OperationLogPersistence
@@ -32,13 +37,28 @@ public class OperationLogPersistence {
         ServletRequestAttributes sAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = sAttributes.getRequest();
         String target = joinPoint.getSignature().getDeclaringTypeName();              // 全路径类名
-        String classNm = target.substring(target.lastIndexOf(".") + 1, target.length()); // 类名截取
+        String className = target.substring(target.lastIndexOf(".") + 1, target.length()); // 类名截取
         String method = joinPoint.getSignature().getName();                          // 获取方法名
         String clientIp = getRemoteHost(request); // clientIp地址-请求源IP
         String requestUrl = request.getRequestURL().toString();  // 请求路径
+        String serverIp = InetAddress.getLocalHost().getHostAddress(); //服务器ip
+        Object[] args = joinPoint.getArgs();//请求
         Object result = joinPoint.proceed(); //响应
-
-
+        String reqContent = JSON.toJSONString(args);
+        String resContent = JSON.toJSONString(result);
+        OperationLogPersistenceDTE dte = new OperationLogPersistenceDTE();
+        dte.setClassName(className);
+        dte.setClientIp(clientIp);
+        dte.setId("");
+        dte.setLogType("info");
+        dte.setMethod(method);
+        dte.setReqContent(reqContent);
+        dte.setResContent(resContent);
+        dte.setServerIp(serverIp);
+        dte.setTitle(requestUrl);
+        dte.setSource("pc");
+        dte.setReservedText("保留字段");
+        logger.info("日志持久化内容: {}",dte);
         return result;
     }
 

@@ -1,6 +1,7 @@
 package com.tanglei.springbootstudydemo.controller;
 
 import com.tanglei.springbootstudydemo.global.myannotation.Check;
+import com.tanglei.springbootstudydemo.global.myannotation.OperationLogPersistence;
 import com.tanglei.springbootstudydemo.global.myaspect.ParamsAspect;
 import com.tanglei.springbootstudydemo.result.ResponseResult;
 import com.tanglei.springbootstudydemo.service.HelloService;
@@ -26,6 +27,7 @@ public class HelloController {
 
     @RequestMapping("/user")
     @Check(params = {"userName", "pwd"})
+    @OperationLogPersistence
     @ResponseBody
     public Map getUser(){
         Map map = new HashMap();
@@ -38,6 +40,7 @@ public class HelloController {
     @RequestMapping(value="/users",method = RequestMethod.POST,produces ="application/json; charset=utf-8")
     @Check(params = {"size"})
     @ResponseBody
+    @OperationLogPersistence
     public ResponseResult getUsers(@RequestParam(value="name", required = false) String name){
         logger.info("name:"+name);
         return  helloService.getUsers();
