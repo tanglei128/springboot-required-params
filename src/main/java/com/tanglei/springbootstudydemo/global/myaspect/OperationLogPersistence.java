@@ -15,6 +15,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,16 +36,20 @@ public class OperationLogPersistence {
 
     @Around("opLogSave()") //别名引用
     public Object around (ProceedingJoinPoint joinPoint) throws Throwable{
+        Object result =null;
         ServletRequestAttributes sAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = sAttributes.getRequest();
         String target = joinPoint.getSignature().getDeclaringTypeName();              // 全路径类名
         String className = target.substring(target.lastIndexOf(".") + 1, target.length()); // 类名截取
         String method = joinPoint.getSignature().getName();                          // 获取方法名
+        //String queryString = request.getQueryString();
+        Map<String, String> requestParams = getRequestParams(request);
+        String source = requestParams.get("source");
         String clientIp = getRemoteHost(request); // clientIp地址-请求源IP
         String requestUrl = request.getRequestURL().toString();  // 请求路径
         String serverIp = InetAddress.getLocalHost().getHostAddress(); //服务器ip
         Object[] args = joinPoint.getArgs();//请求
-        Object result = joinPoint.proceed(); //响应
+        result = joinPoint.proceed(); //响应
         String reqContent = JSON.toJSONString(args);
         String resContent = JSON.toJSONString(result);
         OperationLogPersistenceDTE dte = new OperationLogPersistenceDTE();
@@ -56,7 +62,7 @@ public class OperationLogPersistence {
         dte.setResContent(resContent);
         dte.setServerIp(serverIp);
         dte.setTitle(requestUrl);
-        dte.setSource("pc");
+        dte.setSource(source);
         dte.setReservedText("保留字段");
         logger.info("日志持久化内容: {}",dte);
         return result;
@@ -79,6 +85,26 @@ public class OperationLogPersistence {
             ip = request.getRemoteAddr();
         }
         return ip.contains("0:0:0:0:0:0:0:1") ? "127.0.0.1" : ip;
+    }
+
+    /**
+     * 获取请求参数
+     */
+    public  Map<String, String> getRequestParams(HttpServletRequest request) {
+        Map<String, String> res = new HashMap<>();
+        Enumeration<?> temp = request.getParameterNames();
+        if (null != temp) {
+            while (temp.hasMoreElements()) {
+                String en = (String) temp.nextElement();
+                String value = request.getParameter(en);
+                res.put(en, value);
+                // 在报文上送时，如果字段的值为空，则不上送<下面的处理为在获取所有参数数据时，判断若值为空，则删除这个字段>
+                if (res.get(en)==null||"".equals(res.get(en))) {
+                    res.remove(en);
+                }
+            }
+        }
+        return res;
     }
 
 }
